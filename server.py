@@ -19,6 +19,25 @@ def delete_wishlist(wishlist_id):
         return make_response('Wishlist does not exist', status.HTTP_404_NOT_FOUND)
     else:
         return make_response('Wishlist does not exist', status.HTTP_403_FORBIDDEN)
+    
+ @app.route('/<int:cust_id>/wishlist', methods=['POST'])
+def create_wishlist(cust_id):
+    """ create the wishlist with the provided id""" 
+    wishlist = CustomerList(cust_id)
+    wishlist.deserialize(request.get_json())
+    wishlist.save()
+    message = wishlist.serialize()
+    location_url = url_for('create_wishlist',cust_id = wishlist.id)
+    return make_response(jsonify(message), status.HTTP_201_CREATED,
+                         {
+                             'Location': location_url
+                         })
+
+@app.route('/<int:cust_id>/wishlist' , methods=['GET'])
+def display_cust_wishlist(cust_id):
+    """ List the wishlists with the provided id"""
+	dic = CustomerList.find(cust_id)
+	return make_response(jsonify(dic), status.HTTP_200_OK)
 
 if __name__ == "__main__":
     print "Wishlist Service Starting..."
