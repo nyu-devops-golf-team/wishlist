@@ -55,7 +55,7 @@ def display_cust_wishlist(cust_id):
 ######################################################
 ########               PUT/UPDATE             ########
 ######################################################
-@app.route('/wishlist/<int:wishlist_id>', methods=['PUT'])
+@app.route('/wishlist/<int:wishlist_id>', methods=['PUT','PATCH'])
 def update_wishlist(wishlist_id):
     """ Updates the wishlist if it exists, otherwise returns not found """
     # TODO add products changes as well, for now just asses the wishlists 
