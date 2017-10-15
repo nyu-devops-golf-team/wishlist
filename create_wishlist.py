@@ -23,6 +23,9 @@ class Customer(object):
            
             self.index += 1
             return self.index
+			
+	
+			
 		
 		
 
@@ -32,6 +35,7 @@ class CustomerList(object):
 	def __init__(self, id, name=''):
         	self.id = id
 		self.name = name      
+		
 	
 	def deserialize(self, data):
 		if not isinstance(data, dict):
@@ -65,3 +69,12 @@ class CustomerList(object):
 		if CustomerList.cust_id.has_key(custid):
 			c = CustomerList.cust_id[custid]
 			return c.wishlist
+		else:
+			return None
+			
+	@staticmethod
+	def find_wishlist(wishlists,name):
+		if wishlists.has_key(name):
+			return {"Wishlist name": name, "Product list": wishlists[name]}
+		else:
+			return None
