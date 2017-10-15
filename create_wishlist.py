@@ -6,8 +6,7 @@ class DataValidationError(Exception):
 
 class Customer(object):
 	
-	
-    
+
 	def __init__(self, wishlist={}, wishlist_id={}):
 		self.wishlist = wishlist
 		self.wishlist_id = wishlist_id
@@ -35,7 +34,7 @@ class CustomerList(object):
 		self.name = name      
 	
 	def deserialize(self, data):
-		    	if not isinstance(data, dict):
+		if not isinstance(data, dict):
             		raise DataValidationError('Invalid customer: body of request contained bad or no data')
         	
 		if data.has_key('name'):
