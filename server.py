@@ -72,6 +72,25 @@ def update_wishlist(wishlist_id):
         #return_code = HTTP_404_NOT_FOUND
     	return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
+######################################################
+########                GET/SEE               ########
+######################################################
+@app.route('/wishlist/<int:cust_id>/<string:wishlist_name>' , methods=['GET'])
+def query_wishlist(cust_id,wishlist_name):
+	""" List the wishlist with the provided name"""
+	wishlists = CustomerList.find(cust_id)
+	if wishlists: 
+		message = CustomerList.find_wishlist(wishlists,wishlist_name)
+		if message:
+			return make_response(jsonify(message),status.HTTP_200_OK)
+		else:
+			message = {'Error' : 'Wishlist with the given name not found'}
+			return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+	else:
+		message = {'Error' : 'Customer ID not found'}
+		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+		
+
 
 
 if __name__ == "__main__":
