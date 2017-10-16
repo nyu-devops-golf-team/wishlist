@@ -64,7 +64,7 @@ def update_wishlist(wishlist_id):
         wishlists.deserialize(request.get_json())
         wishlists.save()
         message = wishlists.serialize()
-        return_code = HTTP_200_OK
+        #return_code = HTTP_200_OK
     	return make_response(jsonify(message) ,status.HTTP_200_OK) 
     else:
     
