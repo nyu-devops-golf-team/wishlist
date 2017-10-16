@@ -40,9 +40,9 @@ def create_wishlist(cust_id):
     message = wishlist.serialize()
     location_url = url_for('create_wishlist', cust_id=wishlist.id)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
-                         {
-                             'Location': location_url
-                         })
+                        {
+                            'Location': location_url
+                        })
 
 
 ######################################################
@@ -58,19 +58,19 @@ def display_cust_wishlist(cust_id):
 ######################################################
 ########               PUT/UPDATE             ########
 ######################################################
-@app.route('/wishlist/<int:wishlist_id>', methods=['PUT', 'PATCH'])
-def update_wishlist(wishlist_id):
+@app.route('/wishlist/<int:cust_id>', methods=['PUT', 'PATCH'])
+def update_wishlist(cust_id):
     """ Updates the wishlist if it exists, otherwise returns not found """
     # TODO add products changes as well, for now just asses the wishlists
-    wishlists = CustomerList.find(wishlist_id)
+    wishlists = CustomerList.find(cust_id)
     if wishlists:
-        wishlists.deserialize(request.get_json())
-        wishlists.save()
-        message = wishlists.serialize()
-        return_code = status.HTTP_200_OK
+        wishlist = CustomerList(cust_id)
+        wishlist.deserialize(request.get_json())
+        wishlist.save()
+        message = wishlist.serialize()
+        # return_code = status.HTTP_200_OK
         return make_response(jsonify(message), status.HTTP_200_OK)
     else:
-
         message = {'Error': 'Wishlist not found'}
         # return_code = HTTP_404_NOT_FOUND
         return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
