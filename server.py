@@ -64,7 +64,7 @@ def update_wishlist(wishlist_id):
         wishlists.deserialize(request.get_json())
         wishlists.save()
         message = wishlists.serialize()
-        return_code = HTTP_200_OK
+        return_code = status.HTTP_200_OK
     	return make_response(jsonify(message) ,status.HTTP_200_OK) 
     else:
     
@@ -89,9 +89,24 @@ def query_wishlist(cust_id,wishlist_name):
 	else:
 		message = {'Error' : 'Customer ID not found'}
 		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
-		
 
-
+######################################################
+########     READ PRODUCTS IN A WISHLIST      ########
+######################################################
+@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
+def list_products_in_wishlist(cust_id,wishlist_id):
+	""" List products in a customer's wishlist """
+	wishlists = CustomerList.find(cust_id)
+	if wishlists:
+		message = CustomerList.find_wishlist(wishlists,wishlist_name)
+		if message:
+			return make_response(jsonify(message),status.HTTP_200_OK)
+		else:
+			message = {'Error' : 'Wishlist with the given name not found'}
+			return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+	else:
+		message = {'Error' : 'Customer ID not found'}
+		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
 if __name__ == "__main__":
     print "Wishlist Service Starting..."
