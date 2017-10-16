@@ -12,12 +12,13 @@ app = Flask(__name__)
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '5000')
 
+
 ######################################################
 ########                DELETE                ########
 ######################################################
 @app.route('/wishlist/<int:wishlist_id>', methods=['DELETE'])
 def delete_wishlist(wishlist_id):
-    """ Deletes the wishlist with the provided id""" 
+    """ Deletes the wishlist with the provided id"""
     # TODO undo these fixtures once persistance is added
     if wishlist_id == 3:
         return make_response('Wishlist {} deleted'.format(wishlist_id))
@@ -29,84 +30,89 @@ def delete_wishlist(wishlist_id):
 
 ######################################################
 ########              POST/CREATE             ########
-######################################################    
+######################################################
 @app.route('/wishlist/<int:cust_id>', methods=['POST'])
 def create_wishlist(cust_id):
-    """ create the wishlist with the provided id""" 
+    """ create the wishlist with the provided id"""
     wishlist = CustomerList(cust_id)
     wishlist.deserialize(request.get_json())
     wishlist.save()
     message = wishlist.serialize()
-    location_url = url_for('create_wishlist',cust_id = wishlist.id)
+    location_url = url_for('create_wishlist', cust_id=wishlist.id)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {
                              'Location': location_url
                          })
 
+
 ######################################################
 ########                GET/SEE               ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>' , methods=['GET'])
+@app.route('/wishlist/<int:cust_id>', methods=['GET'])
 def display_cust_wishlist(cust_id):
     """ List the wishlists with the provided id"""
     dic = CustomerList.find(cust_id)
     return make_response(jsonify(dic), status.HTTP_200_OK)
 
+
 ######################################################
 ########               PUT/UPDATE             ########
 ######################################################
-@app.route('/wishlist/<int:wishlist_id>', methods=['PUT','PATCH'])
+@app.route('/wishlist/<int:wishlist_id>', methods=['PUT', 'PATCH'])
 def update_wishlist(wishlist_id):
     """ Updates the wishlist if it exists, otherwise returns not found """
-    # TODO add products changes as well, for now just asses the wishlists 
+    # TODO add products changes as well, for now just asses the wishlists
     wishlists = CustomerList.find(wishlist_id)
     if wishlists:
         wishlists.deserialize(request.get_json())
         wishlists.save()
         message = wishlists.serialize()
         return_code = status.HTTP_200_OK
-    	return make_response(jsonify(message) ,status.HTTP_200_OK) 
+        return make_response(jsonify(message), status.HTTP_200_OK)
     else:
-    
-        message = {'Error' : 'Wishlist not found'}
-        #return_code = HTTP_404_NOT_FOUND
-    	return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+
+        message = {'Error': 'Wishlist not found'}
+        # return_code = HTTP_404_NOT_FOUND
+        return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+
 
 ######################################################
 ########                GET/SEE               ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>/<string:wishlist_name>' , methods=['GET'])
-def query_wishlist(cust_id,wishlist_name):
-	""" List the wishlist with the provided name"""
-	wishlists = CustomerList.find(cust_id)
-	if wishlists: 
-		message = CustomerList.find_wishlist(wishlists,wishlist_name)
-		if message:
-			return make_response(jsonify(message),status.HTTP_200_OK)
-		else:
-			message = {'Error' : 'Wishlist with the given name not found'}
-			return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
-	else:
-		message = {'Error' : 'Customer ID not found'}
-		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+@app.route('/wishlist/<int:cust_id>/<string:wishlist_name>', methods=['GET'])
+def query_wishlist(cust_id, wishlist_name):
+    """ List the wishlist with the provided name"""
+    wishlists = CustomerList.find(cust_id)
+    if wishlists:
+        message = CustomerList.find_wishlist(wishlists, wishlist_name)
+        if message:
+            return make_response(jsonify(message), status.HTTP_200_OK)
+        else:
+            message = {'Error': 'Wishlist with the given name not found'}
+            return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+    else:
+        message = {'Error': 'Customer ID not found'}
+        return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+
 
 ######################################################
 ########     READ PRODUCTS IN A WISHLIST      ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
-def list_products_in_wishlist(cust_id,wishlist_id):
-	""" List products in a customer's wishlist """
-	wishlists = CustomerList.find(cust_id)
-	if wishlists:
-		message = CustomerList.find_wishlist(wishlists,wishlist_name)
-		if message:
-			return make_response(jsonify(message),status.HTTP_200_OK)
-		else:
-			message = {'Error' : 'Wishlist with the given name not found'}
-			return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
-	else:
-		message = {'Error' : 'Customer ID not found'}
-		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>', methods=['GET'])
+def list_products_in_wishlist(cust_id, wishlist_id):
+    """ List products in a customer's wishlist """
+    wishlists = CustomerList.find(cust_id)
+    if wishlists:
+        message = CustomerList.find_wishlist(wishlists, wishlist_name)
+        if message:
+            return make_response(jsonify(message), status.HTTP_200_OK)
+        else:
+            message = {'Error': 'Wishlist with the given name not found'}
+            return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+    else:
+        message = {'Error': 'Customer ID not found'}
+        return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+
 
 if __name__ == "__main__":
     print "Wishlist Service Starting..."
