@@ -89,6 +89,8 @@ def query_wishlist(cust_id,wishlist_name):
 	else:
 		message = {'Error' : 'Customer ID not found'}
 		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+		
+
 
 
 if __name__ == "__main__":
