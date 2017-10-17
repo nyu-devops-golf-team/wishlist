@@ -31,7 +31,7 @@ class DeleteWishlistTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
         data = resp.data
         self.assertEqual(data, 'Wishlist does not exist')
- 
+
 
 if __name__ == '__main__':
     unittest.main()
