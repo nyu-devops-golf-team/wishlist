@@ -12,6 +12,21 @@ app = Flask(__name__)
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('PORT', '5000')
 
+######################################################################
+# Error Handlers
+######################################################################
+@app.errorhandler(DataValidationError)
+def request_validation_error(error):
+    """ Handles Value Errors from bad data """
+    return bad_request(error)
+
+@app.errorhandler(400)
+def bad_request(error):
+    """ Handles bad reuests with 400_BAD_REQUEST """
+    message = error.message or str(error)
+    app.logger.info(message)
+    return jsonify(status=400, error='Bad Request', message=message), 400
+
 ######################################################
 ########                DELETE                ########
 ######################################################
@@ -33,7 +48,7 @@ def delete_wishlist(wishlist_id):
 @app.route('/wishlist/<int:cust_id>', methods=['POST'])
 def create_wishlist(cust_id):
     """ create the wishlist with the provided id""" 
-    wishlist = CustomerList(cust_id)
+    wishlist = CustomerList(cust_id,'')
     wishlist.deserialize(request.get_json())
     wishlist.save()
     message = wishlist.serialize()
@@ -50,7 +65,11 @@ def create_wishlist(cust_id):
 def display_cust_wishlist(cust_id):
     """ List the wishlists with the provided id"""
     dic = CustomerList.find(cust_id)
-    return make_response(jsonify(dic), status.HTTP_200_OK)
+    if dic:
+	message = [{'Wishlist name': w, 'Product list': [p for p in dic[w]]} for w in dic]
+    else:
+	message = {'No Content' : 'Wishlist Empty'}
+    return make_response(jsonify(message), status.HTTP_200_OK)
 
 ######################################################
 ########               PUT/UPDATE             ########
@@ -87,7 +106,7 @@ def query_wishlist(cust_id,wishlist_name):
 			message = {'Error' : 'Wishlist with the given name not found'}
 			return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 	else:
-		message = {'Error' : 'Customer ID not found'}
+		message = {'Error' : 'Wishlist empty'}
 		return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 		
 
