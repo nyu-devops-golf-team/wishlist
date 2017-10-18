@@ -97,7 +97,16 @@ class CustomerList(object):
             return {"Wishlist name": name, "Product list": [p for p in wishlists[name]]}
         else:
             return None
-            
+
+    @staticmethod
+    def delete_by_id(custid,wid):
+        if CustomerList.cust_id.has_key(custid):
+            c = CustomerList.cust_id[custid]
+            if c.wishlist_id.has_key(wid):
+                c.wishlist_id.pop(wid, None)
+                return True
+        return False
+
     @staticmethod
     def find_by_id(custid,wid):
         if CustomerList.cust_id.has_key(custid):
