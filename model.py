@@ -79,9 +79,9 @@ class CustomerList(object):
 
     def serialize(self):
         c = CustomerList.cust_id[self.id]
-	    for k,v in c.wishlist_id.iteritems():
-	      if self.name == v:
-	         id = k
+	for k,v in c.wishlist_id.iteritems():
+	    if self.name == v:
+	        id = k
         product_list = c.display(self.name)
         return {"ID": id, "Wishlist name": self.name, "Product list": [p for p in product_list]}
         
