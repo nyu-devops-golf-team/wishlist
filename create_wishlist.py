@@ -124,8 +124,7 @@ class CustomerList(object):
             c.wishlist_id[index] = new_name                               
             CustomerList.cust_id[custid] = c
             return {"Successfully updated wishlist with new name ": new_name}
-        else:
-            return None
+        
     
             
     @staticmethod

@@ -3,8 +3,8 @@ from flask_api import status
 import server
 import json
 from coverage import coverage
-cov = coverage(branch=True, omit=['venv/*', 'flask/*', 'tests.py'])
-cov.start()
+#cov = coverage(branch=True, omit=['venv/*', 'flask/*', 'tests.py'])
+#cov.start()
 
 # TODO: change these when persistance is added
 class WishlistTestCase(unittest.TestCase):
@@ -159,12 +159,12 @@ class WishlistTestCase(unittest.TestCase):
         return len(data)
  
 if __name__ == '__main__':
-    try:
-        unittest.main()
-    except:
-        pass
-    cov.stop()
-    cov.save()
-    print("\n\nCoverage Report:\n")
-    cov.report()
+#    try:
+     unittest.main()
+#    except:
+#        pass
+#    cov.stop()
+#    cov.save()
+#    print("\n\nCoverage Report:\n")
+#    cov.report()
 
