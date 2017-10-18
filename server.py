@@ -3,7 +3,7 @@ from flask import Flask, jsonify, request, url_for, make_response
 from flask_api import status
 import sys
 from werkzeug.exceptions import NotFound
-from create_wishlist import CustomerList, DataValidationError, Customer
+from model import CustomerList, DataValidationError, Customer
 
 # Create Flask application
 app = Flask(__name__)
@@ -33,17 +33,14 @@ def bad_request(error):
 ######################################################
 ########                DELETE                ########
 ######################################################
-@app.route('/wishlist/<int:wishlist_id>', methods=['DELETE'])
-def delete_wishlist(wishlist_id):
+@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>', methods=['DELETE'])
+def delete_wishlist(cust_id, wishlist_id):
     """ Deletes the wishlist with the provided id"""
-    # TODO undo these fixtures once persistance is added
-    if wishlist_id == 3:
+    success = CustomerList.delete_by_id(cust_id, wishlist_id)
+    if success:
         return make_response('Wishlist {} deleted'.format(wishlist_id))
-    elif wishlist_id == 2:
-        return make_response('Wishlist does not exist', status.HTTP_404_NOT_FOUND)
     else:
-        return make_response('Wishlist does not exist', status.HTTP_403_FORBIDDEN)
-
+        return make_response('Wishlist does not exist', status.HTTP_404_NOT_FOUND)
 
 ######################################################
 ########              POST/CREATE             ########

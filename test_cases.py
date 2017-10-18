@@ -3,8 +3,6 @@ from flask_api import status
 import server
 import json
 from coverage import coverage
-#cov = coverage(branch=True, omit=['venv/*', 'flask/*', 'tests.py'])
-#cov.start()
 
 # TODO: change these when persistance is added
 class WishlistTestCase(unittest.TestCase):
@@ -20,23 +18,22 @@ class WishlistTestCase(unittest.TestCase):
 
     def test_delete_wishlist_success(self):
         """Delete a wishlist"""
-        resp = self.app.delete('/wishlist/3')
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        # create wishlist
+        new_wishlist = {'name': 'to delete', 'PID': 5}
+        data = json.dumps(new_wishlist)
+        resp = self.app.post('/wishlist/1', data=data, content_type='application/json')
+        # delete created wishlist
+        resp = self.app.delete('/wishlist/1/3')
         data = resp.data
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(data, 'Wishlist 3 deleted')
 
     def test_delete_wishlist_not_found(self):
         """Delete a wishlist that does not exist"""
-        resp = self.app.delete('/wishlist/2')
+        # Delete wishlist that does not exist
+        resp = self.app.delete('/wishlist/5/201')
+        data = resp.data
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
-        data = resp.data
-        self.assertEqual(data, 'Wishlist does not exist')
-
-    def test_delete_wishlist_not_owned(self):
-        """ Delete a wishlist that isn't owned by this user"""
-        resp = self.app.delete('/wishlist/1')
-        self.assertEqual(resp.status_code, status.HTTP_403_FORBIDDEN)
-        data = resp.data
         self.assertEqual(data, 'Wishlist does not exist')
         
     def test_create_wishlist_success(self):
@@ -159,12 +156,5 @@ class WishlistTestCase(unittest.TestCase):
         return len(data)
  
 if __name__ == '__main__':
-#    try:
      unittest.main()
-#    except:
-#        pass
-#    cov.stop()
-#    cov.save()
-#    print("\n\nCoverage Report:\n")
-#    cov.report()
 
