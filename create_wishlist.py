@@ -14,7 +14,8 @@ class Customer(object):
 
     def create(self, name):
         self.wishlist[name] = []
-        self.wishlist_id[name] = self.__next_index()
+	w_id = self.__next_index()
+	self.wishlist_id[w_id] = name
 
     def add_product(self, name, pid):
         if pid == 0:
@@ -83,21 +84,52 @@ class CustomerList(object):
 
     @staticmethod
     def find(custid):
-        if CustomerList.cust_id.has_key(custid):
-            c = CustomerList.cust_id[custid]
-            return c.wishlist
-        else:
-            return None
-
+		if CustomerList.cust_id.has_key(custid):
+			c = CustomerList.cust_id[custid]
+			return c.wishlist
+		else:
+			return None
+			
     @staticmethod
-    def find_wishlist(wishlists, name):
-        if wishlists.has_key(name):
-            return {"Wishlist name": name, "Product list": [p for p in wishlists[name]]}
-        else:
-            return None
-
+    def find_wishlist(wishlists,name):
+		if wishlists.has_key(name):
+			print (name)
+			return {"Wishlist name": name, "Product list": [p for p in wishlists[name]]}
+		else:
+			return None
+			
+    @staticmethod
+    def find_by_id(custid,wid):
+		if CustomerList.cust_id.has_key(custid):
+			c = CustomerList.cust_id[custid]
+			if c.wishlist_id.has_key(wid):
+				name = c.wishlist_id[wid]
+				return {"Wishlist name": name, "Product list": [p for p in c.wishlist[name]]}
+			else:
+				return None
+		else:
+			return None
+			
+    @staticmethod
+    def update(data,oldName,custid):
+		c = CustomerList.cust_id[custid]
+		if(c.wishlist.has_key(oldName)):
+			product = c.wishlist[oldName]
+			del c.wishlist[oldName]
+			new_name = data['name']
+			c.wishlist[new_name] = product
+			for key,value in c.wishlist_id.iteritems():
+				if value == oldName:
+					index = key
+			c.wishlist_id[index] = new_name								  
+			CustomerList.cust_id[custid] = c
+			return {"Successfully updated wishlist with new name ": new_name}
+		else:
+			return None
+	
+			
     @staticmethod
     def remove_all():
-        """ Removes all of the Pets from the database """
-        CustomerList.cust_id = {}
-        return CustomerList.cust_id
+        	""" Removes all of the Pets from the database """
+        	CustomerList.cust_id = {}
+        	return CustomerList.cust_id
