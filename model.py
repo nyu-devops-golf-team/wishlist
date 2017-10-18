@@ -95,7 +95,7 @@ class CustomerList(object):
             return None
 
     @staticmethod
-    def find_wishlist(wishlists,name):
+    def find_wishlist(wishlists,name,custid):
         if wishlists.has_key(name):
 			c = CustomerList.cust_id[custid]
 			for k,v in c.wishlist_id.iteritems():
