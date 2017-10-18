@@ -2,7 +2,7 @@ import unittest
 from flask_api import status
 import server
 import json
-from coverage import coverage
+#from coverage import coverage
 #cov = coverage(branch=True, omit=['venv/*', 'flask/*', 'tests.py'])
 #cov.start()
 

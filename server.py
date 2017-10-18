@@ -110,7 +110,7 @@ def query_wishlist(cust_id):
     wishlist_name = request.args.get('query')
     if wishlist_name:
         if wishlists: 
-            message = CustomerList.find_wishlist(wishlists,wishlist_name)
+            message = CustomerList.find_wishlist(wishlists,wishlist_name,cust_id)
             if message:
                 return make_response(jsonify(message),status.HTTP_200_OK)
             else:
@@ -121,7 +121,7 @@ def query_wishlist(cust_id):
             return make_response(jsonify(message),status.HTTP_204_NO_CONTENT)
     else:
         if wishlists:
-            message = [{'Wishlist name': w, 'Product list': [p for p in wishlists[w]]} for w in wishlists]
+	    message = [CustomerList.find_wishlist(wishlists,w,cust_id) for w in wishlists]
             return make_response(jsonify(message), status.HTTP_200_OK)
         else:
             message = {'No Content' : 'Wishlist Empty'}

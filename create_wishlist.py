@@ -31,6 +31,8 @@ class Customer(object):
     def display(self, name):
         dict = self.wishlist[name]
         return dict
+		
+		
 
     def __next_index(self):
         """ Generates the next index in a continual sequence """
@@ -50,11 +52,12 @@ class CustomerList(object):
     def deserialize(self, data):
         if not isinstance(data, dict):
             raise DataValidationError('Invalid wishlist data: body of request contained bad or no data')
-
+			
         if data.has_key('PID'):
             self.pid = data['PID']
 
         try:
+	    
             self.name = data['name']
         except KeyError as err:
             raise DataValidationError('Invalid wishlist: missing wishlist name')
@@ -79,8 +82,11 @@ class CustomerList(object):
 
     def serialize(self):
         c = CustomerList.cust_id[self.id]
+	for k,v in c.wishlist_id.iteritems():
+	  if self.name == v:
+	    id = k
         product_list = c.display(self.name)
-        return {"Wishlist name": self.name, "Product list": [p for p in product_list]}
+        return {"ID": id, "Wishlist name": self.name, "Product list": [p for p in product_list]}
 
     @staticmethod
     def find(custid):
@@ -91,10 +97,13 @@ class CustomerList(object):
             return None
 
     @staticmethod
-    def find_wishlist(wishlists,name):
+    def find_wishlist(wishlists,name,custid):
         if wishlists.has_key(name):
-            print (name)
-            return {"Wishlist name": name, "Product list": [p for p in wishlists[name]]}
+			c = CustomerList.cust_id[custid]
+			for k,v in c.wishlist_id.iteritems():
+				if name == v:
+					id = k
+                        return {"ID": id, "Wishlist name": name, "Product list": [p for p in wishlists[name]]}
         else:
             return None
             
@@ -104,7 +113,7 @@ class CustomerList(object):
             c = CustomerList.cust_id[custid]
             if c.wishlist_id.has_key(wid):
                 name = c.wishlist_id[wid]
-                return {"Wishlist name": name, "Product list": [p for p in c.wishlist[name]]}
+                return {"ID": wid, "Wishlist name": name, "Product list": [p for p in c.wishlist[name]]}
             else:
                 return None
         else:
