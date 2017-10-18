@@ -89,7 +89,7 @@ class CustomerList(object):
             return c.wishlist
         else:
             return None
-            
+
     @staticmethod
     def find_wishlist(wishlists,name):
         if wishlists.has_key(name):

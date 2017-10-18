@@ -102,7 +102,6 @@ def add_product(cust_id,wishlist_id,pid):
     else:
         message = {'Error': 'Wishlist not found'}
         return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
-    
 
 ##########################################################################
 ########                GET/SEE all wishlists of a Customer       ########
