@@ -73,11 +73,7 @@ def update_wishlist(cust_id,wishlist_id):
     if wishlists:
         old_name = wishlists['Wishlist name']
         message = CustomerList.update(request.get_json(),old_name,cust_id)
-        if message:
-            return make_response(jsonify(message), status.HTTP_200_OK)
-        else:
-            message = {'Error': 'Wishlist not found'}
-            return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+        return make_response(jsonify(message), status.HTTP_200_OK)
     else:
         message = {'Error': 'Wishlist not found'}
         return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
