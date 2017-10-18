@@ -92,7 +92,7 @@ class WishlistTestCase(unittest.TestCase):
         
     def test_add_product_no_wishlist(self):
         """ Add a product to a non existing wishlist """
-        resp = self.app.put('/wishlist/1/2/add/2', content_type='application/json')
+        resp = self.app.put('/wishlist/1/3/add/2', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
         
     def test_create_wishlist_no_name(self):
