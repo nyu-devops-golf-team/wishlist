@@ -74,14 +74,14 @@ def update_wishlist(cust_id,wishlist_id):
         old_name = wishlists['Wishlist name']
         message = CustomerList.update(request.get_json(),old_name,cust_id)
         if message:
-			return make_response(jsonify(message), status.HTTP_200_OK)
-	else:
-			message = {'Error': 'Wishlist not found'}
-			return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+            return make_response(jsonify(message), status.HTTP_200_OK)
+        else:
+            message = {'Error': 'Wishlist not found'}
+            return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
     else:
         message = {'Error': 'Wishlist not found'}
         return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
-		
+        
 ######################################################
 ########               PUT/ADD A PRODUCT      ########
 ######################################################
@@ -92,61 +92,60 @@ def add_product(cust_id,wishlist_id,pid):
     wishlists = CustomerList.find_by_id(cust_id,wishlist_id)
     if wishlists:
         product = wishlists['Product list']
-	name = wishlists['Wishlist name']
-	product.append(pid)
-	c = CustomerList(cust_id,name)
-	c.pid = pid
-	c.save()
+        name = wishlists['Wishlist name']
+        product.append(pid)
+        c = CustomerList(cust_id,name)
+        c.pid = pid
+        c.save()
         message = c.serialize()
-	return make_response(jsonify(message), status.HTTP_200_OK)
+        return make_response(jsonify(message), status.HTTP_200_OK)
     else:
-	message = {'Error': 'Wishlist not found'}
-	return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
+        message = {'Error': 'Wishlist not found'}
+        return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
     
-
 
 ##########################################################################
 ########                GET/SEE all wishlists of a Customer       ########
 ##########################################################################
 @app.route('/wishlist/<int:cust_id>' , methods=['GET'])
 def query_wishlist(cust_id):
-	""" List the wishlist with the provided name"""
-	
-	wishlists = CustomerList.find(cust_id)
-	wishlist_name = request.args.get('query')
-	if wishlist_name:
-	    if wishlists: 
-		    message = CustomerList.find_wishlist(wishlists,wishlist_name)
-		    if message:
-			    return make_response(jsonify(message),status.HTTP_200_OK)
-		    else:
-			    message = {'Error' : 'Wishlist with the given name not found'}
-			    return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
-	    else:
-		    message = {'No Content' : 'Wishlist Empty'}
-		    return make_response(jsonify(message),status.HTTP_204_NO_CONTENT)
-	else:
-		if wishlists:
-			message = [{'Wishlist name': w, 'Product list': [p for p in wishlists[w]]} for w in wishlists]
-			return make_response(jsonify(message), status.HTTP_200_OK)
-		else:
-			message = {'No Content' : 'Wishlist Empty'}
-		        return make_response(jsonify(message), status.HTTP_204_NO_CONTENT)
-		
+    """ List the wishlist with the provided name"""
+    
+    wishlists = CustomerList.find(cust_id)
+    wishlist_name = request.args.get('query')
+    if wishlist_name:
+        if wishlists: 
+            message = CustomerList.find_wishlist(wishlists,wishlist_name)
+            if message:
+                return make_response(jsonify(message),status.HTTP_200_OK)
+            else:
+                message = {'Error' : 'Wishlist with the given name not found'}
+                return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+        else:
+            message = {'No Content' : 'Wishlist Empty'}
+            return make_response(jsonify(message),status.HTTP_204_NO_CONTENT)
+    else:
+        if wishlists:
+            message = [{'Wishlist name': w, 'Product list': [p for p in wishlists[w]]} for w in wishlists]
+            return make_response(jsonify(message), status.HTTP_200_OK)
+        else:
+            message = {'No Content' : 'Wishlist Empty'}
+            return make_response(jsonify(message), status.HTTP_204_NO_CONTENT)
+        
 #########################################################################
 ########                GET/SEE  a Specific Wishlist             ########
 #########################################################################
 @app.route('/wishlist/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
 def get_wishlist(cust_id,wishlist_id):
-	""" List the wishlist with the provided name"""
-	
-	wishlists = CustomerList.find_by_id(cust_id,wishlist_id)
-	
-	if wishlists:
-	    return make_response(jsonify(wishlists),status.HTTP_200_OK)
-	else:
-	    message = {'Error' : 'Wishlist with the given ID not found'}
-	    return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+    """ List the wishlist with the provided name"""
+    
+    wishlists = CustomerList.find_by_id(cust_id,wishlist_id)
+    
+    if wishlists:
+        return make_response(jsonify(wishlists),status.HTTP_200_OK)
+    else:
+        message = {'Error' : 'Wishlist with the given ID not found'}
+        return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
 
 if __name__ == "__main__":
