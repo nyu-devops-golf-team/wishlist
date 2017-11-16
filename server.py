@@ -29,7 +29,9 @@ def bad_request(error):
     app.logger.info(message)
     return jsonify(status=400, error='Bad Request', message=message), 400
 
-
+@app.route('/', methods=['GET'])
+def home_page():
+    return "WELCOME TO WISHLIST PAGE"
 ######################################################
 ########                DELETE                ########
 ######################################################
