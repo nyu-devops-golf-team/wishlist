@@ -84,7 +84,7 @@ class CustomerList(object):
 	        id = k
         product_list = c.display(self.name)
         return {"ID": id, "Wishlist name": self.name, "Product list": [p for p in product_list]}
-        
+
 
     @staticmethod
     def find(custid):
@@ -104,7 +104,7 @@ class CustomerList(object):
                         return {"ID": id, "Wishlist name": name, "Product list": [p for p in wishlists[name]]}
         else:
             return None
-        
+
 
     @staticmethod
     def delete_by_id(custid,wid):
@@ -126,7 +126,7 @@ class CustomerList(object):
                 return None
         else:
             return None
-            
+
     @staticmethod
     def update(data,oldName,custid):
         c = CustomerList.cust_id[custid]
@@ -138,14 +138,23 @@ class CustomerList(object):
             for key,value in c.wishlist_id.iteritems():
                 if value == oldName:
                     index = key
-            c.wishlist_id[index] = new_name                               
+            c.wishlist_id[index] = new_name
             CustomerList.cust_id[custid] = c
             return {"Successfully updated wishlist with new name ": new_name}
-        
-    
-            
+
+
+
     @staticmethod
     def remove_all():
         """ Removes all of the Pets from the database """
         CustomerList.cust_id = {}
         return CustomerList.cust_id
+
+    @staticmethod
+    def clear_list(custid,data):
+        wid = data['ID']
+        c = CustomerList.cust_id[custid]
+        name = c.wishlist_id[wid]
+        c.wishlist[name] = []
+        CustomerList.cust_id[custid] = c
+        return {"Successfully cleared wishlist with ID ": wid}
