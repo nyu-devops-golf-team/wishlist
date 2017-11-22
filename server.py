@@ -76,7 +76,7 @@ def update_wishlist(cust_id,wishlist_id):
     else:
         message = {'Error': 'Wishlist not found'}
         return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
-        
+
 ######################################################
 ########               PUT/ADD A PRODUCT      ########
 ######################################################
@@ -104,11 +104,11 @@ def add_product(cust_id,wishlist_id,pid):
 @app.route('/wishlist/<int:cust_id>' , methods=['GET'])
 def query_wishlist(cust_id):
     """ List the wishlist with the provided name"""
-    
+
     wishlists = CustomerList.find(cust_id)
     wishlist_name = request.args.get('query')
     if wishlist_name:
-        if wishlists: 
+        if wishlists:
             message = CustomerList.find_wishlist(wishlists,wishlist_name,cust_id)
             if message:
                 return make_response(jsonify(message),status.HTTP_200_OK)
@@ -125,18 +125,31 @@ def query_wishlist(cust_id):
         else:
             message = {'No Content' : 'Wishlist Empty'}
             return make_response(jsonify(message), status.HTTP_204_NO_CONTENT)
-        
+
 #########################################################################
 ########                GET/SEE  a Specific Wishlist             ########
 #########################################################################
 @app.route('/wishlist/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
 def get_wishlist(cust_id,wishlist_id):
     """ List the wishlist with the provided name"""
-    
+
     wishlists = CustomerList.find_by_id(cust_id,wishlist_id)
-    
+
     if wishlists:
         return make_response(jsonify(wishlists),status.HTTP_200_OK)
+    else:
+        message = {'Error' : 'Wishlist with the given ID not found'}
+        return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
+
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>' , methods=['PUT','PATCH'])
+def clear_wishlist(cust_id,wishlist_id):
+    """ Clear the contents of the wishlist with the given id"""
+
+    wishlists = CustomerList.find_by_id(cust_id,wishlist_id)
+
+    if wishlists:
+        message = CustomerList.clear_list(cust_id,wishlists)
+        return make_response(jsonify(message),status.HTTP_200_OK)
     else:
         message = {'Error' : 'Wishlist with the given ID not found'}
         return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
