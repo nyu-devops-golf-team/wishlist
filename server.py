@@ -35,7 +35,7 @@ def home_page():
 ######################################################
 ########                DELETE                ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>', methods=['DELETE'])
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>', methods=['DELETE'])
 def delete_wishlist(cust_id, wishlist_id):
     """ Deletes the wishlist with the provided id"""
     success = CustomerList.delete_by_id(cust_id, wishlist_id)
@@ -47,7 +47,7 @@ def delete_wishlist(cust_id, wishlist_id):
 ######################################################
 ########              POST/CREATE             ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>', methods=['POST'])
+@app.route('/wishlists/<int:cust_id>', methods=['POST'])
 def create_wishlist(cust_id):
     """ create the wishlist with the provided id"""
     wishlist = CustomerList(cust_id, '')
@@ -64,7 +64,7 @@ def create_wishlist(cust_id):
 ######################################################
 ########               PUT/UPDATE             ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>', methods=['PUT', 'PATCH'])
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>', methods=['PUT', 'PATCH'])
 def update_wishlist(cust_id,wishlist_id):
     """ Updates the wishlist name if it exists, otherwise returns not found """
     # TODO add products changes as well, for now just asses the wishlists
@@ -80,7 +80,7 @@ def update_wishlist(cust_id,wishlist_id):
 ######################################################
 ########               PUT/ADD A PRODUCT      ########
 ######################################################
-@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>/add/<int:pid>', methods=['PUT', 'PATCH'])
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>/add/<int:pid>', methods=['PUT', 'PATCH'])
 def add_product(cust_id,wishlist_id,pid):
     """ Add product ID to a wishlist """
     # TODO add products changes as well, for now just asses the wishlists
@@ -101,7 +101,7 @@ def add_product(cust_id,wishlist_id,pid):
 ##########################################################################
 ########                GET/SEE all wishlists of a Customer       ########
 ##########################################################################
-@app.route('/wishlist/<int:cust_id>' , methods=['GET'])
+@app.route('/wishlists/<int:cust_id>' , methods=['GET'])
 def query_wishlist(cust_id):
     """ List the wishlist with the provided name"""
 
@@ -129,7 +129,7 @@ def query_wishlist(cust_id):
 #########################################################################
 ########                GET/SEE  a Specific Wishlist             ########
 #########################################################################
-@app.route('/wishlist/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
 def get_wishlist(cust_id,wishlist_id):
     """ List the wishlist with the provided name"""
 
@@ -141,7 +141,7 @@ def get_wishlist(cust_id,wishlist_id):
         message = {'Error' : 'Wishlist with the given ID not found'}
         return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
-@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>' , methods=['PUT','PATCH'])
+@app.route('/wishlists/<int:cust_id>/<int:wishlist_id>/clear' , methods=['PUT','PATCH'])
 def clear_wishlist(cust_id,wishlist_id):
     """ Clear the contents of the wishlist with the given id"""
 
@@ -154,6 +154,18 @@ def clear_wishlist(cust_id,wishlist_id):
         message = {'Error' : 'Wishlist with the given ID not found'}
         return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
+@app.route('/wishlists' , methods=['GET'])
+def display_all_wishlists():
+    """ Display wishlists of all customers if created"""
+
+    customers = CustomerList.display_all()
+
+    if customers:
+        message = [{"Customer ID " : custid , "Wishlists " : [CustomerList.find_wishlist(CustomerList.find(custid),w,custid) for w in CustomerList.find(custid)]} for custid in customers]
+        return make_response(jsonify(message),status.HTTP_200_OK)
+    else:
+        message = {'Error' : 'No wishlist created for any customer'}
+        return make_response(jsonify(message),status.HTTP_404_NOT_FOUND)
 
 if __name__ == "__main__":
     print "Wishlist Service Starting..."
