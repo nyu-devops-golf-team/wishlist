@@ -21,9 +21,9 @@ class WishlistTestCase(unittest.TestCase):
         # create wishlist
         new_wishlist = {'name': 'to delete', 'PID': 5}
         data = json.dumps(new_wishlist)
-        resp = self.app.post('/wishlist/1', data=data, content_type='application/json')
+        resp = self.app.post('/wishlists/1', data=data, content_type='application/json')
         # delete created wishlist
-        resp = self.app.delete('/wishlist/1/3')
+        resp = self.app.delete('/wishlists/1/3')
         data = resp.data
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(data, 'Wishlist 3 deleted')
@@ -31,7 +31,7 @@ class WishlistTestCase(unittest.TestCase):
     def test_delete_wishlist_not_found(self):
         """Delete a wishlist that does not exist"""
         # Delete wishlist that does not exist
-        resp = self.app.delete('/wishlist/5/201')
+        resp = self.app.delete('/wishlists/5/201')
         data = resp.data
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(data, 'Wishlist does not exist')
@@ -41,14 +41,14 @@ class WishlistTestCase(unittest.TestCase):
         count = self.get_wishlist_count()
         new_wishlist = {'name': 'laugh', 'PID': 1}
         data = json.dumps(new_wishlist)
-        resp = self.app.post('/wishlist/1', data=data, content_type='application/json')
+        resp = self.app.post('/wishlists/1', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Make sure location header is set
         location = resp.headers.get('Location', None)
         self.assertIsNotNone(location)
         new_data = json.loads(resp.data)
         self.assertEqual(new_data['Wishlist name'], 'laugh')
-        resp = self.app.get('/wishlist/1')
+        resp = self.app.get('/wishlists/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(len(data), count + 1)
@@ -56,9 +56,9 @@ class WishlistTestCase(unittest.TestCase):
 
     def test_clear_wishlist(self):
         """ clear contents of a wishlist"""
-        resp = self.app.put('/wishlists/1/1', content_type='application/json')
+        resp = self.app.put('/wishlists/1/1/clear', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        resp = self.app.get('/wishlist/1/1')
+        resp = self.app.get('/wishlists/1/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         new_data = []
@@ -66,21 +66,21 @@ class WishlistTestCase(unittest.TestCase):
 
     def test_clear_nonExisting_wishlist(self):
         """Clear contents of a non existing wishlist"""
-        resp = self.app.put('/wishlist/1/3', content_type='application/json')
+        resp = self.app.put('/wishlists/1/3', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_clear_nonExisting_Customer_wishlist(self):
         """Clear contents of wishlist for a non existing customer"""
-        resp = self.app.put('/wishlist/4/1', content_type='application/json')
+        resp = self.app.put('/wishlists/4/1', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_wishlist(self):
         """Update the name of a wishlist """
         new_name = {'name' : 'laugh'}
         data = json.dumps(new_name)
-        resp = self.app.put('/wishlist/1/1', data=data, content_type='application/json')
+        resp = self.app.put('/wishlists/1/1', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        resp = self.app.get('/wishlist/1/1')
+        resp = self.app.get('/wishlists/1/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(data['Wishlist name'], 'laugh')
@@ -89,19 +89,19 @@ class WishlistTestCase(unittest.TestCase):
         """ Update a non existing wishlist """
         new_name = {'name' : 'laugh'}
         data = json.dumps(new_name)
-        resp = self.app.put('/wishlist/1/3', data=data, content_type='application/json')
+        resp = self.app.put('/wishlists/1/3', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_empty_wishlist(self):
         """ Update an empty wishlist """
         new_name = {'name' : 'laugh'}
         data = json.dumps(new_name)
-        resp = self.app.put('/wishlist/2/3', data=data, content_type='application/json')
+        resp = self.app.put('/wishlists/2/3', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_action_product_add(self):
         """ Add a product to an existing wishlist """
-        resp = self.app.put('/wishlist/1/1/add/2', content_type='application/json')
+        resp = self.app.put('/wishlists/1/1/add/2', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         product = data['Product list']
@@ -109,26 +109,31 @@ class WishlistTestCase(unittest.TestCase):
 
     def test_add_product_no_wishlist(self):
         """ Add a product to a non existing wishlist """
-        resp = self.app.put('/wishlist/1/3/add/2', content_type='application/json')
+        resp = self.app.put('/wishlists/1/3/add/2', content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_create_wishlist_no_name(self):
         """Create a wishlist with no wishlist name"""
         new_wishlist = {'PID': 1}
         data = json.dumps(new_wishlist)
-        resp = self.app.post('/wishlist/1', data=data, content_type='application/json')
+        resp = self.app.post('/wishlists/1', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_all_wishlist(self):
         """Get all the wishlist of a customer"""
-        resp = self.app.get('/wishlist/1')
+        resp = self.app.get('/wishlists/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(len(data), 2)
 
+    def test_display_all_wishlists(self):
+        """Display wishlists of all customers"""
+        resp = self.app.get('/wishlists')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
     def test_query_a_wishlist_by_name(self):
         """Get 1 wishlist of a customer"""
-        resp = self.app.get('/wishlist/1', query_string='query=happy')
+        resp = self.app.get('/wishlists/1', query_string='query=happy')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
         self.assertTrue('happy' in resp.data)
@@ -138,39 +143,39 @@ class WishlistTestCase(unittest.TestCase):
 
     def test_query_a_wishlist_with_no_name(self):
         """Get 1 wishlist of a customer"""
-        resp = self.app.get('/wishlist/1', query_string='query=laugh')
+        resp = self.app.get('/wishlists/1', query_string='query=laugh')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_query_wishlist_not_created_by_customer(self):
         """ Search a  wishlist not created by a customer"""
-        resp = self.app.get('/wishlist/2', query_string='query=happy')
+        resp = self.app.get('/wishlists/2', query_string='query=happy')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_get_wishlist(self):
         """get a specific wishlist of a customer"""
-        resp = self.app.get('/wishlist/1/1')
+        resp = self.app.get('/wishlists/1/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(data['Wishlist name'], 'happy')
 
     def test_get_non_existing_wishlist(self):
         """get a wishlist not found"""
-        resp = self.app.get('/wishlist/1/3')
+        resp = self.app.get('/wishlists/1/3')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_empty_wishlist(self):
         """get a wishlist for a non existing customer"""
-        resp = self.app.get('/wishlist/2/1')
+        resp = self.app.get('/wishlists/2/1')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_wishlist_empty(self):
         """ Empty wishlist for a new customer"""
-        resp = self.app.get('/wishlist/2')
+        resp = self.app.get('/wishlists/2')
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
 
     def get_wishlist_count(self):
         """get the number of wishlist"""
-        resp = self.app.get('/wishlist/1')
+        resp = self.app.get('/wishlists/1')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         return len(data)

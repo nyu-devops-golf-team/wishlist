@@ -146,7 +146,7 @@ class CustomerList(object):
 
     @staticmethod
     def remove_all():
-        """ Removes all of the Pets from the database """
+        """ Removes all of the wishlists from the database """
         CustomerList.cust_id = {}
         return CustomerList.cust_id
 
@@ -158,3 +158,10 @@ class CustomerList(object):
         c.wishlist[name] = []
         CustomerList.cust_id[custid] = c
         return {"Successfully cleared wishlist with ID ": wid}
+
+    @staticmethod
+    def display_all():
+        if not CustomerList.cust_id:
+            return None
+        else:
+            return CustomerList.cust_id
