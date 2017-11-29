@@ -2,7 +2,22 @@ import unittest
 from flask_api import status
 import server
 import json
+import os
+from mock import patch
+from redis import Redis, ConnectionError
 from coverage import coverage
+
+VCAP_SERVICES = {
+    'golf-team-redis': [
+        {'credentials': {
+            'password': '',
+            'hostname': '127.0.0.1',
+            'port': '5000'
+            }
+        }
+    ]
+}
+
 
 # TODO: change these when persistance is added
 class WishlistTestCase(unittest.TestCase):
