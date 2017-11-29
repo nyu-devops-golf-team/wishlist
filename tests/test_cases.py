@@ -2,6 +2,9 @@ import unittest
 from flask_api import status
 import server
 import json
+import os
+from mock import patch
+from redis import Redis, ConnectionError
 from coverage import coverage
 
 # TODO: change these when persistance is added
