@@ -1,6 +1,7 @@
 import os
 from flask import Flask, jsonify, request, url_for, make_response
 from flask_api import status
+from flasgger import Swagger
 import sys
 from werkzeug.exceptions import NotFound
 from model import Customer, DataValidationError, Wishlist
@@ -12,6 +13,22 @@ app = Flask(__name__)
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 PORT = os.getenv('VCAP_APP_PORT', '5000')
 
+# Configure Swagger before initilaizing it
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "Wishlist App",
+            "description": "The wishlists resource allow customers to create a collection of products that they wish they had the money to purchase.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+# Initialize Swagger after configuring it
+Swagger(app)
 
 ######################################################################
 # Error Handlers
@@ -29,12 +46,43 @@ def bad_request(error):
     app.logger.info(message)
     return jsonify(status=400, error='Bad Request', message=message), 400
 
+######################################################################
+#  Index
+######################################################################
+@app.route("/")
+def index():
+    return jsonify(name='Wishlist REST API Service',
+                   version='1.0',
+                   docs=request.base_url + 'apidocs/index.html'), status.HTTP_200_OK
+
 ######################################################
 ########                DELETE                ########
 ######################################################
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>', methods=['DELETE'])
 def delete_wishlist(cust_id, wishlist_id):
-    """ Deletes the wishlist with the provided id"""
+    # """ Delete the wishlist with the provided id"""
+    """
+    Delete a Wishlist
+    This endpoint will delete a Wishlist based on the customer id and Wishlist id specified in the path
+    ---
+    tags:
+      - Wishlists
+    description: Deletes a wishlist from the database
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to delete his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be deleted
+        required: true
+        type: integer
+    responses:
+      204:
+        description: Wishlist deleted
+    """
     success = Customer.delete_by_id(cust_id, wishlist_id)
     return make_response('', status.HTTP_204_NO_CONTENT)
 
@@ -43,7 +91,63 @@ def delete_wishlist(cust_id, wishlist_id):
 ######################################################
 @app.route('/wishlists/<int:cust_id>', methods=['POST'])
 def create_wishlist(cust_id):
-    """ create the wishlist with the provided id"""
+    # """ create the wishlist with the provided id"""
+    """
+    Create a Wishlist
+    This endpoint will create a Wishlist based on the customer id specified in the path
+    ---
+    tags:
+      - Wishlists
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to create his/her wishlist
+        required: true
+        type: integer
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - name
+            - Product List
+          properties:
+            name:
+              type: string
+              description: name for the Wishlist
+            Product List:
+              type: array
+              items:
+                type: string
+              description: the list of products in a Wishlist
+    responses:
+      201:
+        description: Wishlist created
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      400:
+        description: Bad Request (the posted data was not valid)
+    """
     wishlist = Customer(cust_id,"",[])
     wishlist.deserialize(request.get_json())
     message = wishlist.save()
@@ -60,7 +164,64 @@ def create_wishlist(cust_id):
 ######################################################
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>', methods=['PUT', 'PATCH'])
 def update_wishlist(cust_id,wishlist_id):
-    """ Updates the wishlist name if it exists, otherwise returns not found """
+    # """ Update the wishlist name if it exists, otherwise returns not found """
+    """
+    Update a Wishlist
+    This endpoint will update a Wishlist based on the customer id and Wishlist id specified in the path
+    ---
+    tags:
+      - Wishlists
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to update his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be updated
+        required: true
+        type: integer
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+              description: name for the Wishlist
+    responses:
+      200:
+        description: Wishlist updated
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      400:
+        description: Bad Request (the put data was not valid)
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     # TODO add products changes as well, for now just asses the wishlists
     if Customer.check_custid(cust_id):
         message = Customer.find_by_id(cust_id,wishlist_id)
@@ -80,7 +241,54 @@ def update_wishlist(cust_id,wishlist_id):
 ######################################################
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>/<int:pid>', methods=['PUT', 'PATCH'])
 def add_product(cust_id,wishlist_id,pid):
-    """ Add product ID to a wishlist """
+    # """ Add product ID to a wishlist """
+    """
+    Add a product to a Wishlist
+    This endpoint will add a product to a wishlist based on the customer ID, Wishlist ID, an product ID specified in the path
+    ---
+    tags:
+      - Wishlists
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to add a product to his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be updated
+        required: true
+        type: integer
+      - name: pid
+        in: path
+        description: ID of product to be added
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Product added to a wishlist
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      400:
+        description: Bad Request (the put data was not valid)
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     # TODO add products changes as well, for now just asses the wishlists
     if Customer.check_custid(cust_id):
         message = Customer.find_by_id(cust_id,wishlist_id)
@@ -100,7 +308,52 @@ def add_product(cust_id,wishlist_id,pid):
 ######################################################
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>/<int:pid>', methods=['DELETE'])
 def delete_product(cust_id,wishlist_id,pid):
-    """ delete product ID to a wishlist """
+    # """ delete product ID to a wishlist """
+    """
+    Delete a product from a Wishlist
+    This endpoint will delete a product from a wishlist based on the customer ID, Wishlist ID, an product ID specified in the path
+    ---
+    tags:
+      - Wishlists
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to delete a product from his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be updated
+        required: true
+        type: integer
+      - name: pid
+        in: path
+        description: ID of product to be deleted
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Product deleted from a wishlist
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     # TODO add products changes as well, for now just asses the wishlists
     if Customer.check_custid(cust_id):
         message = Customer.find_by_id(cust_id,wishlist_id)
@@ -120,7 +373,50 @@ def delete_product(cust_id,wishlist_id,pid):
 ##########################################################################
 @app.route('/wishlists/<int:cust_id>' , methods=['GET'])
 def query_wishlist(cust_id):
-    """ List the wishlist with the provided name"""
+    # """ List the wishlist with the provided name"""
+    """
+    Retrieve a list of Wishlists
+    This endpoint will return all Wishlists based on the customer ID specified in the path and the optional wishlist name
+    ---
+    tags:
+      - Wishlists
+    description: The Wishlists endpoint allows you to query Wishlists
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to view a list of his/her Wishlists
+        required: true
+        type: integer
+      - name: name
+        in: query
+        description: Name of the wishlist the customer wants to view
+        required: false
+        type: string
+    responses:
+      200:
+        description: A list of Wishlists retrieved
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: array
+              items:
+                type: object
+                properties:
+                  wishlist name:
+                    type: string
+                    description: the Wishlists's name
+                  Product list:
+                    type: array
+                    items:
+                      type: string
+                    description: the list of products in a Wishlist
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     if Customer.check_custid(cust_id):
         query_name = request.args.get('name')
         if query_name:
@@ -135,7 +431,7 @@ def query_wishlist(cust_id):
             return make_response(jsonify(message),status.HTTP_200_OK)
     else:
         message = {'Invalid' : 'Invalid customer ID'}
-        return make_response(jsonify(message), status.HTTP_204_NO_CONTENT)
+        return make_response(jsonify(message), status.HTTP_404_NOT_FOUND)
 
 
 
@@ -144,7 +440,47 @@ def query_wishlist(cust_id):
 #########################################################################
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>' , methods=['GET'])
 def get_wishlist(cust_id,wishlist_id):
-    """ List the wishlist with the provided name"""
+    # """ List the wishlist with the provided name"""
+    """
+    List products of a Wishlist
+    This endpoint will list products of a Wishlist based on the customer id and Wishlist id specified in the path
+    ---
+    tags:
+      - Wishlists
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to view his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be retrieved
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Wishlist retrieved
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     if Customer.check_custid(cust_id):
         message = Customer.find_by_id(cust_id,wishlist_id)
         if message:
@@ -162,7 +498,47 @@ def get_wishlist(cust_id,wishlist_id):
 
 @app.route('/wishlists/<int:cust_id>/<int:wishlist_id>/clear' , methods=['PUT','PATCH'])
 def clear_wishlist(cust_id,wishlist_id):
-    """ Clear the contents of the wishlist with the given id"""
+    # """ Clear the contents of the wishlist with the given id"""
+    """
+    Clear all products of a Wishlist
+    This endpoint will clear all products of a Wishlist based on the customer id and Wishlist id specified in the path
+    ---
+    tags:
+      - Wishlists
+    parameters:
+      - name: cust_id
+        in: path
+        description: ID of customer who wants to view his/her wishlist
+        required: true
+        type: integer
+      - name: wishlist_id
+        in: path
+        description: ID of wishlist to be retrieved
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Wishlist cleared
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: object
+              properties:
+                wishlist name:
+                  type: string
+                  description: the Wishlists's name
+                Product list:
+                  type: array
+                  items:
+                    type: string
+                  description: the list of products in a Wishlist
+      404:
+        description: Not Found (either customer ID or wishlist ID is not valid, no record found)
+    """
     if Customer.check_custid(cust_id):
         message = Customer.find_by_id(cust_id,wishlist_id)
         if message:
@@ -181,8 +557,39 @@ def clear_wishlist(cust_id,wishlist_id):
 
 @app.route('/wishlists' , methods=['GET'])
 def display_all_wishlists():
-    """ Display wishlists of all customers if created"""
-
+    # """ Display wishlists of all customers if created"""
+    """
+    Retrieve a list of Wishlists of all customers
+    This endpoint will return all Wishlists of all customers
+    ---
+    tags:
+      - Wishlists
+    description: The Wishlists endpoint allows you to query all Wishlists of all customers
+    responses:
+      200:
+        description: All Wishlists retrieved
+        schema:
+          id: Wishlist
+          properties:
+            Customer ID:
+              type: integer
+              description: ID of customer
+            Wishlist:
+              type: array
+              items:
+                type: object
+                properties:
+                  wishlist name:
+                    type: string
+                    description: the Wishlists's name
+                  Product list:
+                    type: array
+                    items:
+                      type: string
+                    description: the list of products in a Wishlist
+      404:
+        description: Not Found (No wishlist created for any customer)
+    """
     if Customer.display_all():
         message = [Customer.find_by_custid(k) for k in Customer.redis.keys()]
         return make_response(jsonify(message),status.HTTP_200_OK)
@@ -197,8 +604,6 @@ def init_db(redis=None):
 
 def data_reset():
     Customer.remove_all()
-
-
 
 
 
