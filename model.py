@@ -1,167 +1,265 @@
+from redis import Redis
+from redis.exceptions import ConnectionError
 import threading
+import os
+import pickle
 
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
+class Wishlist(object):
+    def __init__(self):
+        self.index = 0
+        self.wishlist_data = {}
+
+    def save_values(self, i, name, productList):
+        self.index = i
+        Wname_product = {}
+        if productList:
+            product = [p for p in productList]
+            Wname_product[name] = product
+            self.wishlist_data[self.index] = Wname_product
+
+        else:
+            product = []
+            Wname_product[name] = product
+            self.wishlist_data[self.index] = Wname_product
+
+
+    def display_by_id(self):
+        index = self.index
+        result = {}
+        if self.wishlist_data.has_key(index):
+            Wname_product = self.wishlist_data[index]
+            for k,v in Wname_product.iteritems():
+                message =  {"wishlist name" : k, "Product list" : [p for p in v]}
+                result[index] = message
+                return result
+        else:
+            return None
+
 
 class Customer(object):
-    def __init__(self, wishlist={}, wishlist_id={}):
-        self.wishlist = wishlist
-        self.wishlist_id = wishlist_id
-        self.index = 0
+    redis=None
 
-    def create(self, name):
-        self.wishlist[name] = []
-        w_id = self.__next_index()
-        self.wishlist_id[w_id] = name
+    def __init__(self,custid,name,plist):
+        self.cust_id = custid
+        self.wishlist_name = name
+        self.product_list = plist
 
-    def add_product(self, name, pid):
-        if pid == 0:
-            return
-        else:
-            dict = self.wishlist[name]
-            val = [id for id in dict if id == pid]
-            if val:
-                return
-            else:
-                dict.append(pid)
-
-    def display(self, name):
-        dict = self.wishlist[name]
-        return dict
-
-    def __next_index(self):
-        """ Generates the next index in a continual sequence """
-
-        self.index += 1
-        return self.index
-
-
-class CustomerList(object):
-    cust_id = {}
-
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
-        self.pid = 0
 
     def deserialize(self, data):
-        if not isinstance(data, dict):
-            raise DataValidationError('Invalid wishlist data: body of request contained bad or no data')
+          if not isinstance(data, dict):
+              raise DataValidationError('Invalid wishlist data: body of request contained bad or no data')
 
-        if data.has_key('PID'):
-            self.pid = data['PID']
+          if data.has_key('Product List'):
+              self.product_list = [p for p in data['Product List']]
 
-        try:
-            self.name = data['name']
-        except KeyError as err:
-            raise DataValidationError('Invalid wishlist: missing wishlist name')
-        return
+          try:
+              self.wishlist_name = data['name']
+          except KeyError as err:
+              raise DataValidationError('Invalid wishlist: missing wishlist name')
+          return
 
     def save(self):
-        if CustomerList.cust_id.has_key(self.id):
-            c = CustomerList.cust_id[self.id]
-            if c.wishlist.has_key(self.name):
-                c.add_product(self.name, self.pid)
-                return
-            else:
-                c.create(self.name)
-                c.add_product(self.name, self.pid)
-        else:
-            c = Customer({}, {})
-            c.create(self.name)
-            c.add_product(self.name, self.pid)
-            CustomerList.cust_id[self.id] = c
+          if self.cust_id == 0:
+              raise DataValidationError('Invalid customer ID : Please provide a valid ID')
+          if Customer.redis.exists(self.cust_id):
+              maxi = 0
+              message = pickle.loads(Customer.redis.get(self.cust_id))
 
-        return
+              for m in message.iteritems():
+                  if m[0]>maxi:
+                      maxi = m[0]
 
-    def serialize(self):
-        c = CustomerList.cust_id[self.id]
-	for k,v in c.wishlist_id.iteritems():
-	    if self.name == v:
-	        id = k
-        product_list = c.display(self.name)
-        return {"ID": id, "Wishlist name": self.name, "Product list": [p for p in product_list]}
-
-
-    @staticmethod
-    def find(custid):
-        if CustomerList.cust_id.has_key(custid):
-            c = CustomerList.cust_id[custid]
-            return c.wishlist
-        else:
-            return None
+              w = Wishlist()
+              i = maxi+1
+              w.save_values(i,self.wishlist_name,self.product_list)
+              new_message = w.display_by_id()
+              message.update(new_message)
+              Customer.redis.set(self.cust_id,pickle.dumps(message))
+              message = w.display_by_id()
+              return {"Customer ID" : self.cust_id , "Wishlist" : message}
+          else:
+              w = Wishlist()
+              w.save_values(1,self.wishlist_name,self.product_list)
+              message = w.display_by_id()
+              Customer.redis.set(self.cust_id,pickle.dumps(message))
+              return {"Customer ID" : self.cust_id , "Wishlist" : message}
 
     @staticmethod
-    def find_wishlist(wishlists,name,custid):
-        if wishlists.has_key(name):
-			c = CustomerList.cust_id[custid]
-			for k,v in c.wishlist_id.iteritems():
-				if name == v:
-					id = k
-                        return {"ID": id, "Wishlist name": name, "Product list": [p for p in wishlists[name]]}
-        else:
-            return None
-
-
-    @staticmethod
-    def delete_by_id(custid,wid):
-        if CustomerList.cust_id.has_key(custid):
-            c = CustomerList.cust_id[custid]
-            if c.wishlist_id.has_key(wid):
-                c.wishlist_id.pop(wid, None)
-                return True
-        return False
+    def serialize(m):
+        data = {}
+        data[m[0]] = {"wishlist name" : m[1]["wishlist name"], "Product list" : [p for p in m[1]["Product list"]]}
+        return data
 
     @staticmethod
     def find_by_id(custid,wid):
-        if CustomerList.cust_id.has_key(custid):
-            c = CustomerList.cust_id[custid]
-            if c.wishlist_id.has_key(wid):
-                name = c.wishlist_id[wid]
-                return {"ID": wid, "Wishlist name": name, "Product list": [p for p in c.wishlist[name]]}
-            else:
-                return None
-        else:
-            return None
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] == wid:
+                  result = m
+                  return {"Customer ID" : custid , "Wishlist" : result}
+          else:
+              return None
 
     @staticmethod
-    def update(data,oldName,custid):
-        c = CustomerList.cust_id[custid]
-        if(c.wishlist.has_key(oldName)):
-            product = c.wishlist[oldName]
-            del c.wishlist[oldName]
-            new_name = data['name']
-            c.wishlist[new_name] = product
-            for key,value in c.wishlist_id.iteritems():
-                if value == oldName:
-                    index = key
-            c.wishlist_id[index] = new_name
-            CustomerList.cust_id[custid] = c
-            return {"Successfully updated wishlist with new name ": new_name}
+    def find_by_name(custid,wname):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          k=0
+          for m in message.iteritems():
+              if m[1]["wishlist name"] == wname:
+                  data = Customer.serialize(m)
+                  result.update(data)
+                  k=1
+          if k == 1:
+              return {"Customer ID" : custid , "Wishlist" : result}
+          else:
+              return None
 
 
 
     @staticmethod
-    def remove_all():
-        """ Removes all of the wishlists from the database """
-        CustomerList.cust_id = {}
-        return CustomerList.cust_id
+    def find_by_custid(custid):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              data = Customer.serialize(m)
+              result.update(data)
 
-    @staticmethod
-    def clear_list(custid,data):
-        wid = data['ID']
-        c = CustomerList.cust_id[custid]
-        name = c.wishlist_id[wid]
-        c.wishlist[name] = []
-        CustomerList.cust_id[custid] = c
-        return {"Successfully cleared wishlist with ID ": wid}
+          return {"Customer ID" : custid , "Wishlist" :result}
 
     @staticmethod
     def display_all():
-        if not CustomerList.cust_id:
-            return None
+          for k in Customer.redis.keys():
+              return True
+          return False
+
+    @staticmethod
+    def check_custid(custid):
+          if Customer.redis.exists(custid):
+              return True
+          else:
+              return False
+
+    @staticmethod
+    def delete_by_id(custid,wid):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] != wid:
+                  data = Customer.serialize(m)
+                  result.update(data)
+          Customer.redis.set(custid,pickle.dumps(result))
+          return True
+
+    @staticmethod
+    def update(custid,wid,data):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] == wid:
+                  m[1]["wishlist name"] = data['name']
+                  data = Customer.serialize(m)
+                  result.update(data)
+              else:
+                  data = Customer.serialize(m)
+                  result.update(data)
+
+          Customer.redis.set(custid,pickle.dumps(result))
+          return True
+
+    @staticmethod
+    def addProduct(custid,wid,pid):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] == wid:
+                  productList = [p for p in m[1]["Product list"] if p!=pid]
+                  productList.append(pid)
+                  m[1]["Product list"] = [p for p in productList]
+                  data = Customer.serialize(m)
+                  result.update(data)
+              else:
+                  data = Customer.serialize(m)
+                  result.update(data)
+          Customer.redis.set(custid,pickle.dumps(result))
+          return True
+
+    @staticmethod
+    def deleteProduct(custid,wid,pid):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] == wid:
+                  productList = [p for p in m[1]["Product list"] if p!=pid]
+                  m[1]["Product list"] = [p for p in productList]
+                  data = Customer.serialize(m)
+                  result.update(data)
+              else:
+                  data = Customer.serialize(m)
+                  result.update(data)
+          Customer.redis.set(custid,pickle.dumps(result))
+          return True
+
+    @staticmethod
+    def clear_list(custid,wid):
+          message = pickle.loads(Customer.redis.get(custid))
+          result = {}
+          for m in message.iteritems():
+              if m[0] == wid:
+                  m[1]["Product list"] = []
+                  data = Customer.serialize(m)
+                  result.update(data)
+              else:
+                  data = Customer.serialize(m)
+                  result.update(data)
+
+          Customer.redis.set(custid,pickle.dumps(result))
+          return True
+
+    @staticmethod
+    def remove_all():
+        """ Removes all entrie from the database """
+        Customer.redis.flushdb()
+
+
+    @staticmethod
+    def connect_to_redis(hostname, port, password):
+        """ Connects to Redis and tests the connection """
+        Customer.redis = Redis(host=hostname, port=port, password=password)
+        try:
+            Customer.redis.ping()
+        except ConnectionError:
+            Customer.redis = None
+        return Customer.redis
+
+    @staticmethod
+    def init_db(redis=None):
+        if redis:
+            Customer.redis = redis
+            try:
+                Customer.redis.ping()
+            except ConnectionError:
+                Customer.redis = None
+                raise ConnectionError('Could not connect to the Redis Service')
+            return
+        # Get the credentials from the Bluemix environment
+        if 'VCAP_SERVICES' in os.environ:
+            vcap_services = os.environ['VCAP_SERVICES']
+            services = json.loads(vcap_services)
+            creds = services['rediscloud'][0]['credentials']
+            Customer.connect_to_redis(creds['hostname'], creds['port'], creds['password'])
         else:
-            return CustomerList.cust_id
+            Customer.connect_to_redis('127.0.0.1', 6379, None)
+            if not Customer.redis:
+                Customer.connect_to_redis('redis', 6379, None)
+
+
+        if not Customer.redis:
+            # if you end up here, redis instance is down.
+            raise ConnectionError('Could not connect to the Redis Service')
