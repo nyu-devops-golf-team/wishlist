@@ -4,7 +4,7 @@ import server
 import json
 import os
 from mock import patch
-from redis import Redis, ConnectionError
+from redis import Redis
 from coverage import coverage
 
 
