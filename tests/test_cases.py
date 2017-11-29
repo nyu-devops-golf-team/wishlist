@@ -169,7 +169,7 @@ class WishlistTestCase(unittest.TestCase):
     def test_query_wishlist_not_created_by_customer(self):
         """ Search a  wishlist not created by a customer"""
         resp = self.app.get('/wishlists/2', query_string='name=happy')
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_wishlist(self):
         """get a specific wishlist of a customer"""
@@ -192,7 +192,7 @@ class WishlistTestCase(unittest.TestCase):
     def test_wishlist_empty(self):
         """ Empty wishlist for a new customer"""
         resp = self.app.get('/wishlists/2')
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_no_data_in_database(self):
         """Database is empty : get the list"""

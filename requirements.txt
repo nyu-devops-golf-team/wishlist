@@ -1,6 +1,7 @@
 redis>=2.10.6
 Flask==0.12
 Flask-API==0.6.9
+flasgger==0.5.14
 # Testing
 pylint
 mock==2.0.0
