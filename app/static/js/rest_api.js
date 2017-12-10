@@ -204,13 +204,14 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:10%">ID</th>'
             header += '<th style="width:40%">Name</th>'
-            header += '<th style="width:40%">Category</th>'
-            header += '<th style="width:10%">Available</th></tr>'
+            //header += '<th style="width:40%">Category</th>'
+            //header += '<th style="width:10%">Available</th></tr>'
             $("#search_results").append(header);
             for(var i = 0; i < res.length; i++) {
                 pet = res[i];
-                var row = "<tr><td>"+pet.id+"</td><td>"+pet.name+"</td><td>"+pet.category+"</td><td>"+pet.available+"</td></tr>";
-                $("#search_results").append(row);
+                var row = "<tr><td>"+wishlist.id+"</td><td>"+wishlist.name+
+		    /*"</td><td>"+pet.category+"</td><td>"+pet.available+"</td></tr>";
+                $("#search_results").append(row);*/
             }
 
             $("#search_results").append('</table>');
