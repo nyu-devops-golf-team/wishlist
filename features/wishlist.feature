@@ -51,6 +51,6 @@ Scenario: Delete a Wishlist
 
 Scenario: The server is up
     When I visit the "Home Page"
-    Then I should see the title "Wishlist Service"
+    Then I should see "Wishlist Service" in the title
     
 
