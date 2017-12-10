@@ -1,9 +1,12 @@
 from redis import Redis
 from redis.exceptions import ConnectionError
+#from cerberus import Validator
+from app.custom_exceptions import DataValidationError
 import json
 import threading
 import os
 import pickle
+import logging
 
 
 class DataValidationError(Exception):
@@ -11,6 +14,7 @@ class DataValidationError(Exception):
     pass
 
 class Wishlist(object):
+
     def __init__(self):
         self.index = 0
         self.wishlist_data = {}
@@ -43,7 +47,15 @@ class Wishlist(object):
 
 
 class Customer(object):
-    redis=None
+    
+    """ Wishlist Schema to Database"""
+    logger = logging.getLogger(__name__)
+    redis = None
+    schema = {
+        'id': {'type': 'integer'},
+        'name': {'type': 'string', 'required': True}
+        }
+    #__validator = Validator(schema)
 
     def __init__(self,custid,name,plist):
         self.cust_id = custid

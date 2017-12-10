@@ -52,5 +52,8 @@ Scenario: Delete a Wishlist
 Scenario: The server is up
     When I visit the "Home Page"
     Then I should see "Wishlist Service" in the title
-    And I should not see "404 Not Found"
+<<<<<<< HEAD
+=======
+    
+>>>>>>> a6a2102c00318283cda78b951767fa2afd3ed6c2
 
