@@ -6,21 +6,21 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#pet_id").val(res.id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
-        if (res.available == true) {
+        $("#wishlist_id").val(res.id);
+        $("#wishlist_name").val(res.name);
+	//$("#pet_category").val(res.category);
+        /*if (res.available == true) {
             $("#pet_available").val("true");
         } else {
             $("#pet_available").val("false");
-        }
+        }*/
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#pet_name").val("");
-        $("#pet_category").val("");
-        $("#pet_available").val("");
+        $("#wishlist_name").val("");
+        //$("#pet_category").val("");
+        //$("#pet_available").val("");
     }
 
     // Updates the flash message area
@@ -30,24 +30,24 @@ $(function () {
     }
 
     // ****************************************
-    // Create a Pet
+    // Create a Wishlist
     // ****************************************
 
     $("#create-btn").click(function () {
 
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var name = $("#wishlist_name").val();
+        //var category = $("#pet_category").val();
+        //var available = $("#pet_available").val() == "true";
 
         var data = {
             "name": name,
-            "category": category,
-            "available": available
+            //"category": category,
+            //"available": available
         };
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/pets",
+            url: "/wishlist",
             contentType:"application/json",
             data: JSON.stringify(data),
         });
@@ -64,25 +64,25 @@ $(function () {
 
 
     // ****************************************
-    // Update a Pet
+    // Update a Wishlist
     // ****************************************
 
     $("#update-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var wishlist_id = $("#wishlist_id").val();
+        var name = $("#wishlist_name").val();
+        //var category = $("#pet_category").val();
+        //var available = $("#pet_available").val() == "true";
 
         var data = {
             "name": name,
-            "category": category,
-            "available": available
+            //"category": category,
+            //"available": available
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/pets/" + pet_id,
+                url: "/wishlist/" + pet_id,
                 contentType:"application/json",
                 data: JSON.stringify(data)
             })
@@ -99,7 +99,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve a Pet
+    // Retrieve a Wishlist
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -108,7 +108,7 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets/" + pet_id,
+            url: "/wishlist/" + pet_id,
             contentType:"application/json",
             data: ''
         })
@@ -127,23 +127,23 @@ $(function () {
     });
 
     // ****************************************
-    // Delete a Pet
+    // Delete a Wishlist
     // ****************************************
 
     $("#delete-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
+        var pet_id = $("#wishlist_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/pets/" + pet_id,
+            url: "/wishlist/" + pet_id,
             contentType:"application/json",
             data: '',
         })
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Pet with ID [" + res.id + "] has been Deleted!")
+            flash_message("Wishlist with ID [" + res.id + "] has been Deleted!")
         });
 
         ajax.fail(function(res){
@@ -156,26 +156,26 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#pet_id").val("");
+        $("#wishlist_id").val("");
         clear_form_data()
     });
 
     // ****************************************
-    // Search for a Pet
+    // Search for a Wishlist
     // ****************************************
 
     $("#search-btn").click(function () {
 
-        var name = $("#pet_name").val();
-        var category = $("#pet_category").val();
-        var available = $("#pet_available").val() == "true";
+        var name = $("#wishlist_name").val();
+        //var category = $("#pet_category").val();
+        //var available = $("#pet_available").val() == "true";
 
         var queryString = ""
 
         if (name) {
             queryString += 'name=' + name
         }
-        if (category) {
+        /*if (category) {
             if (queryString.length > 0) {
                 queryString += '&category=' + category
             } else {
@@ -188,11 +188,11 @@ $(function () {
             } else {
                 queryString += 'available=' + available
             }
-        }
+        }*/
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/pets?" + queryString,
+            url: "/wishlist?" + queryString,
             contentType:"application/json",
             data: ''
         })
