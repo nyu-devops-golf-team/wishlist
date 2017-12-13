@@ -19,8 +19,8 @@ def step_impl(context):
     """ Delete all Pets and load new ones """
     headers = {'Content-Type': 'application/json'}
     #context.resp = requests.delete(context.base_url + '/wishlist/reset', headers=headers)
-    assert context.resp.status_code == 204
-    create_url = context.base_url + '/wishlist'
+    #assert context.resp.status_code == 204
+    create_url = context.base_url + '/wishlists/1'
     for row in context.table:
         data = {
             "name": row['name'],
@@ -31,7 +31,7 @@ def step_impl(context):
         assert context.resp.status_code == 201
 
 @when(u'I visit the "home page"')
-def step_impl(context,message):
+def step_impl(context):
     """ Get the home page URL"""
     context.driver.get(context.base_url)
 

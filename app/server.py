@@ -8,14 +8,6 @@ from werkzeug.exceptions import NotFound
 from app.model import Customer, DataValidationError, Wishlist
 from . import app
 
-
-# Create Flask application
-app = Flask(__name__)
-
-# Pull options from environment
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('VCAP_APP_PORT', '5000')
-
 # Configure Swagger before initilaizing it
 app.config['SWAGGER'] = {
     "swagger_version": "2.0",
@@ -54,9 +46,10 @@ def bad_request(error):
 ######################################################################
 @app.route("/")
 def index():
-    return jsonify(name='Wishlist REST API Service',
-                   version='1.0',
-                   docs=request.base_url + 'apidocs/index.html'), status.HTTP_200_OK
+    return app.send_static_file('index.html')
+    #return jsonify(name='Wishlist REST API Service',
+    #               version='1.0',
+    #               docs=request.base_url + 'apidocs/index.html'), status.HTTP_200_OK
 
 ######################################################
 ########                DELETE                ########
@@ -607,12 +600,6 @@ def init_db(redis=None):
 
 def data_reset():
     Customer.remove_all()
-
-
-
-if __name__ == "__main__":
-    print "Wishlist Service Starting..."
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
 
 
 ################################################
