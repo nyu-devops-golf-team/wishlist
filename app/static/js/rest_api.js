@@ -155,7 +155,7 @@ $(function () {
         ajax.done(function (res) {
             clear_form_data()
             json_message(res);
-            flash_message("success");
+            flash_message("Success");
             // flash_message("Wishlist with ID [" + res.id + "] has been Deleted!")
         });
 
