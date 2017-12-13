@@ -47,7 +47,7 @@ class Wishlist(object):
 
 
 class Customer(object):
-    
+
     """ Wishlist Schema to Database"""
     logger = logging.getLogger(__name__)
     redis = None
@@ -172,19 +172,20 @@ class Customer(object):
 
     @staticmethod
     def update(custid,wid,data):
-          message = pickle.loads(Customer.redis.get(custid))
-          result = {}
-          for m in message.iteritems():
-              if m[0] == wid:
-                  m[1]["wishlist name"] = data['name']
-                  data = Customer.serialize(m)
-                  result.update(data)
-              else:
-                  data = Customer.serialize(m)
-                  result.update(data)
+        message = pickle.loads(Customer.redis.get(custid))
+        result = {}
+        name = data.get('name')
+        for m in message.iteritems():
+            if m[0] == wid:
+                m[1]["wishlist name"] = name
+                data = Customer.serialize(m)
+                result.update(data)
+            else:
+                data = Customer.serialize(m)
+                result.update(data)
 
-          Customer.redis.set(custid,pickle.dumps(result))
-          return True
+        Customer.redis.set(custid,pickle.dumps(result))
+        return True
 
     @staticmethod
     def addProduct(custid,wid,pid):
