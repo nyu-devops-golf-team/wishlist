@@ -1,6 +1,7 @@
 from os import getenv
 import json
 import requests
+import responses
 from behave import *
 from app import server
 from compare import expect, ensure
@@ -82,3 +83,21 @@ def step_impl(context,element_name,text_string):
     element = WebDriverWait(context.driver,WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, element_id)))
     element.clear()
     element.send_keys(text_string)
+
+
+@when(u'I set the "name" to "wishlist1"')
+def step_impl(context):
+    raise NotImplementedError(u'STEP: When I set the "name" to "wishlist1"')
+
+@when(u'I set the "id" to "1"')
+def step_impl(context):
+    raise NotImplementedError(u'STEP: When I set the "id" to "1"')
+
+@when(u'I change the "name" to "test_change"')
+def step_impl(context):
+    raise NotImplementedError(u'STEP: When I change the "name" to "test_change"')
+
+@when(u'I set the "id" to "2"')
+def step_impl(context):
+    raise NotImplementedError(u'STEP: When I set the "id" to "2"')
+

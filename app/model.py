@@ -1,6 +1,6 @@
 from redis import Redis
 from redis.exceptions import ConnectionError
-#from cerberus import Validator
+from cerberus import Validator
 from app.custom_exceptions import DataValidationError
 import json
 import threading
@@ -55,7 +55,7 @@ class Customer(object):
         'id': {'type': 'integer'},
         'name': {'type': 'string', 'required': True}
         }
-    #__validator = Validator(schema)
+    __validator = Validator(schema)
 
     def __init__(self,custid,name,plist):
         self.cust_id = custid
