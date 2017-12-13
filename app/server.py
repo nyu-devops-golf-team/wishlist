@@ -3,15 +3,10 @@ from flask import Flask, jsonify, request, url_for, make_response
 from flask_api import status
 from flasgger import Swagger
 import sys
+import logging
 from werkzeug.exceptions import NotFound
-from model import Customer, DataValidationError, Wishlist
-
-# Create Flask application
-app = Flask(__name__)
-
-# Pull options from environment
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('VCAP_APP_PORT', '5000')
+from app.model import Customer, DataValidationError, Wishlist
+from . import app
 
 # Configure Swagger before initilaizing it
 app.config['SWAGGER'] = {
@@ -51,9 +46,10 @@ def bad_request(error):
 ######################################################################
 @app.route("/")
 def index():
-    return jsonify(name='Wishlist REST API Service',
-                   version='1.0',
-                   docs=request.base_url + 'apidocs/index.html'), status.HTTP_200_OK
+    return app.send_static_file('index.html')
+    #return jsonify(name='Wishlist REST API Service',
+    #               version='1.0',
+    #               docs=request.base_url + 'apidocs/index.html'), status.HTTP_200_OK
 
 ######################################################
 ########                DELETE                ########
@@ -606,7 +602,28 @@ def data_reset():
     Customer.remove_all()
 
 
+################################################
+# SERVER LOGGING (SPECIFIC TO BDD's INDEX.html)#
+################################################
 
-if __name__ == "__main__":
-    print "Wishlist Service Starting..."
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
+
+def initialize_logging(log_level=logging.INFO):
+    """ Initialized the default logging to STDOUT """
+    if not app.debug:
+        print 'Setting up logging...'
+        # Set up default logging for submodules to use STDOUT
+        # datefmt='%m/%d/%Y %I:%M:%S %p'
+        fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+        logging.basicConfig(stream=sys.stdout, level=log_level, format=fmt)
+        # Make a new log handler that uses STDOUT
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(fmt))
+        handler.setLevel(log_level)
+        # Remove the Flask default handlers and use our own
+        handler_list = list(app.logger.handlers)
+        for log_handler in handler_list:
+            app.logger.removeHandler(log_handler)
+        app.logger.addHandler(handler)
+        app.logger.setLevel(log_level)
+        app.logger.info('Logging handler established')
+
