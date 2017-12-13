@@ -12,8 +12,8 @@ before_script:
   - sleep 3
 
 script:
-  - behave
   - nosetests
+  - behave
 
 after_success:
   - codecov
