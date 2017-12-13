@@ -8,7 +8,7 @@ $(function () {
     function update_form_data(res) {
         $("#wishlist_id").val(res.id);
         $("#wishlist_name").val(res.name);
-	//$("#pet_category").val(res.category);
+        //$("#pet_category").val(res.category);
         /*if (res.available == true) {
             $("#pet_available").val("true");
         } else {
@@ -29,6 +29,11 @@ $(function () {
         $("#flash_message").append(message);
     }
 
+    function json_message(res) {
+        $("#json_results").empty();
+        $("#json_results").text(JSON.stringify(res, null, 4));
+    }
+
     // ****************************************
     // Create a Wishlist
     // ****************************************
@@ -47,18 +52,20 @@ $(function () {
 
         var ajax = $.ajax({
             type: "POST",
-            url: "/wishlist",
-            contentType:"application/json",
+            url: "/wishlists/1",
+            contentType: "application/json",
             data: JSON.stringify(data),
         });
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             update_form_data(res)
+            json_message(res);
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+        ajax.fail(function (res) {
+            json_message(res);
+            flash_message(res)
         });
     });
 
@@ -81,19 +88,21 @@ $(function () {
         };
 
         var ajax = $.ajax({
-                type: "PUT",
-                url: "/wishlist/" + pet_id,
-                contentType:"application/json",
-                data: JSON.stringify(data)
-            })
+            type: "PUT",
+            url: "/wishlists/1/" + wishlist_id,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             update_form_data(res)
+            json_message(res);
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+        ajax.fail(function (res) {
+            json_message(res);
+            flash_message(res)
         });
 
     });
@@ -104,24 +113,26 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        var pet_id = $("#pet_id").val();
-
+        var wishlist_id = $("#wishlist_id").val();
+        var url = (wishlist_id == undefined || wishlist_id == "") ? "/wishlists/1" : "/wishlists/1/" + wishlist_id;
         var ajax = $.ajax({
             type: "GET",
-            url: "/wishlist/" + pet_id,
-            contentType:"application/json",
+            url: url,
+            contentType: "application/json",
             data: ''
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             //alert(res.toSource())
             update_form_data(res)
+            json_message(res);
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
             clear_form_data()
-            flash_message(res.responseJSON.message)
+            json_message(res);
+            flash_message(res)
         });
 
     });
@@ -132,21 +143,24 @@ $(function () {
 
     $("#delete-btn").click(function () {
 
-        var pet_id = $("#wishlist_id").val();
+        var wishlist_id = $("#wishlist_id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
-            url: "/wishlist/" + pet_id,
-            contentType:"application/json",
+            url: "/wishlists/1/" + wishlist_id,
+            contentType: "application/json",
             data: '',
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             clear_form_data()
-            flash_message("Wishlist with ID [" + res.id + "] has been Deleted!")
+            json_message(res);
+            flash_message("success");
+            // flash_message("Wishlist with ID [" + res.id + "] has been Deleted!")
         });
 
-        ajax.fail(function(res){
+        ajax.fail(function (res) {
+            json_message(res);
             flash_message("Server error!")
         });
     });
@@ -192,35 +206,36 @@ $(function () {
 
         var ajax = $.ajax({
             type: "GET",
-            url: "/wishlist?" + queryString,
-            contentType:"application/json",
+            url: "/wishlists/1?" + queryString,
+            contentType: "application/json",
             data: ''
         })
 
-        ajax.done(function(res){
+        ajax.done(function (res) {
             //alert(res.toSource())
-            $("#search_results").empty();
-            $("#search_results").append('<table class="table-striped">');
-            var header = '<tr>'
-            header += '<th style="width:10%">ID</th>'
-            header += '<th style="width:40%">Name</th>'
-            //header += '<th style="width:40%">Category</th>'
-            //header += '<th style="width:10%">Available</th></tr>'
-            $("#search_results").append(header);
-            for(var i = 0; i < res.length; i++) {
-                pet = res[i];
-                var row = "<tr><td>"+wishlist.id+"</td><td>"+wishlist.name+
-		    /*"</td><td>"+pet.category+"</td><td>"+pet.available+"</td></tr>";
-                $("#search_results").append(row);*/
-            }
+            // $("#search_results").empty();
+            // $("#search_results").append('<table class="table-striped">');
+            // var header = '<tr>'
+            // header += '<th style="width:10%">ID</th>'
+            // header += '<th style="width:40%">Name</th>'
+            // //header += '<th style="width:40%">Category</th>'
+            // //header += '<th style="width:10%">Available</th></tr>'
+            // $("#search_results").append(header);
+            // for (var i = 0; i < res.Wishlist.length; i++) {
+            //     var wishlist = res.Wishlist[i];
+            //     var row = "<tr><td>" + wishlist.id + "</td><td>" + wishlist.name + "</td></tr>";
+            //     $("#search_results").append(row);
+            // }
 
-            $("#search_results").append('</table>');
+            // $("#search_results").append('</table>');
 
+            json_message(res);
             flash_message("Success")
         });
 
-        ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+        ajax.fail(function (res) {
+            json_message(res);
+            flash_message(res)
         });
 
     });
