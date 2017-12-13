@@ -5,10 +5,11 @@ Feature: The wishlist service
 
 Background:
     Given the following wishlists
-    	| name       | id |
-        | wishlist1  |  1 |
-        | wishlist2  |  2 | 
-	| wishlist3  |  3 |
+    	| name      | id |
+        | wishlist1 | 1  |
+        | wishlist2 | 2  |
+        | wishlist3 | 3  |
+
 
 
 Scenario: Create a Wishlist
@@ -52,5 +53,4 @@ Scenario: Delete a Wishlist
 Scenario: The server is up
     When I visit the "Home Page"
     Then I should see "Wishlist Service" in the title
-    And I should not see "404 Not Found"
 
