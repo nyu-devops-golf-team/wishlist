@@ -23,8 +23,8 @@ def step_impl(context):
     create_url = context.base_url + '/wishlists/1'
     for row in context.table:
         data = {
-            "name": row['name'],
             "id": row['id'],
+            "name": row['name'],
                }
         payload = json.dumps(data)
         context.resp = requests.post(create_url, data=payload, headers=headers)

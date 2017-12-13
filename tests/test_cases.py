@@ -1,6 +1,6 @@
 import unittest
 from flask_api import status
-import server
+from app import server
 import json
 import os
 from mock import patch

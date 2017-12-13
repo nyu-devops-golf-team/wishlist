@@ -5,10 +5,11 @@ Feature: The wishlist service
 
 Background:
     Given the following wishlists
-    	| name       | id |
-        | wishlist1  |  1 |
-        | wishlist2  |  2 | 
-	| wishlist3  |  3 |
+    	| name      | id |
+        | wishlist1 | 1  |
+        | wishlist2 | 2  |
+        | wishlist3 | 3  |
+
 
 
 Scenario: Create a Wishlist
