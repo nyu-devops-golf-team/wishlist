@@ -5,10 +5,10 @@ Feature: The wishlist service
 
 Background:
     Given the following wishlists
-    	| name      | id |
-        | wishlist1 | 1  |
-        | wishlist2 | 2  |
-        | wishlist3 | 3  |
+    	| id | name      |
+        |  1 | wishlist1 |
+        |  2 | wishlist2 |
+        |  3 | wishlist3 |
 
 
 
@@ -30,15 +30,15 @@ Scenario: Update a Wishlist
     And I set the "id" to "1"
     And I press the "retrieve" button
     Then I should see "wishlist1" in the results
-    When I change the "name" to "test_change"
+    When I set the "name" to "wishlisttest"
     And I press the "update" button
     Then I should see the message "Success"
     When I set the "id" to "1"
     And I press the "retrieve" button
-    Then I should see "test_change" in the results
+    Then I should see "wishlisttest" in the results
     When I press the "clear" button
     And I press the "search" button
-    Then I should see "test_change" in the results
+    Then I should see "wishlisttest" in the results
 
 Scenario: Delete a Wishlist
     When I visit the "Home Page"
