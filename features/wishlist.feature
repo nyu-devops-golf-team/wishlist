@@ -1,5 +1,5 @@
 Feature: The wishlist service
-	As a Wishlist (?)
+	As a Wishlist
 	I need a service
 	So that I can keep track of all the products added and the wishlists themselves
 
