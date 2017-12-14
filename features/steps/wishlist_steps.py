@@ -16,7 +16,7 @@ WAIT_SECONDS = 30
 
 @given(u'the following wishlists')
 def step_impl(context):
-    """ Delete all Pets and load new ones """
+    """ Delete all Wishlists and load new ones """
     headers = {'Content-Type': 'application/json'}
     #context.resp = requests.delete(context.base_url + '/wishlist/reset', headers=headers)
     #assert context.resp.status_code == 204
@@ -45,12 +45,12 @@ def step_impl(context, message):
     error_msg = "I should not see '$s' in '%s' " % (message,context.resp.text)
     ensure(message in context.resp.text,False,error_msg)
 
-@when(u'I see the "{element_name} to {text_string}" ')
-def step_impl(context,element_name,text_string):
-    element_id = 'wishlist_' + element_name.lower()
-    element = context.driver.find_element_by_id(element_id)
-    element.clear()
-    element.send_keys(text_string)
+#@when(u'I see the "{element_name} to {text_string}" ')
+#def step_impl(context,element_name,text_string):
+#    element_id = 'wishlist_' + element_name.lower()
+#    element = context.driver.find_element_by_id(element_id)
+#    element.clear()
+#    element.send_keys(text_string)
 
 ###################################################
 # The following involve the button id in index.html
@@ -81,30 +81,41 @@ def step_impl(context,message):
 
 @when(u'I change "{element_name}" to "{text_string}"')
 def step_impl(context,element_name,text_string):
-    # element_id = 'wishlist_' + element_name.lower()
+    element_id = 'wishlist_' + element_name.lower()
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    # element.send_keys(text_string)
     # element = WebDriverWait(context.driver,WAIT_SECONDS).until(expected_conditions.presence_of_element_located((By.ID, element_id)))
     # element.clear()
-    # element.send_keys(text_string)
-    expect(True).to_be(True)
+    element.send_keys(text_string)
+    # expect(True).to_be(True)
+    
+@when (u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = 'wishlist_' + element_name.lower()
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(text_string)
+
+#@when(u'I set the "name" to "wishlist1"')
+#def step_impl(context):
+#    expect(True).to_be(True)
+#    # raise NotImplementedError(u'STEP: When I set the "name" to "wishlist1"')
+
+#@when(u'I set the "id" to "1"')
+#def step_impl(context):
+#    expect(True).to_be(True)
+#    # raise NotImplementedError(u'STEP: When I set the "id" to "1"')
 
 
-@when(u'I set the "name" to "wishlist1"')
-def step_impl(context):
-    expect(True).to_be(True)
-    # raise NotImplementedError(u'STEP: When I set the "name" to "wishlist1"')
+#@when(u'I change the "name" to "wishlisttest"')
+#def step_impl(context):
+#    expect(True).to_be(True)
+#    # raise NotImplementedError(u'STEP: When I change the "name" to "test_change"')
 
-@when(u'I set the "id" to "1"')
-def step_impl(context):
-    expect(True).to_be(True)
-    # raise NotImplementedError(u'STEP: When I set the "id" to "1"')
-
-@when(u'I change the "name" to "test_change"')
-def step_impl(context):
-    expect(True).to_be(True)
-    # raise NotImplementedError(u'STEP: When I change the "name" to "test_change"')
-
-@when(u'I set the "id" to "2"')
-def step_impl(context):
-    expect(True).to_be(True)
-    # raise NotImplementedError(u'STEP: When I set the "id" to "2"')
+#@when(u'I set the "id" to "2"')
+#def step_impl(context):
+#    expect(True).to_be(True)
+#
+    # raise NotImplementedError(u'STEP: When I set the "id" to "2"') 
 
