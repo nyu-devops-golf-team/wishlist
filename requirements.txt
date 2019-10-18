@@ -14,7 +14,7 @@ coverage==4.2
 enum34==1.1.6
 expects==0.8.0
 flasgger==0.5.14
-Flask==0.12
+Flask==1.0
 Flask-API==0.6.9
 funcsigs==1.0.2
 functools32==3.2.3.post2
