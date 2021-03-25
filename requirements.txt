@@ -39,7 +39,7 @@ pinocchio==0.4.2
 Pygments==2.2.0
 pylint==1.7.4
 python-termstyle==0.1.10
-PyYAML==3.12
+PyYAML==5.4
 redis==2.10.6
 rednose==1.2.1
 requests==2.13.0
